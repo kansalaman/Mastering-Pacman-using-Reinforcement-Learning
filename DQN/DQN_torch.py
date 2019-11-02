@@ -19,10 +19,13 @@ class DQN_model(nn.Module):
         self.fcc2=nn.Linear(512,num_actions)
 
     def forward(self,x):
-        x = x.T
-
+        print(x.shape)
+        x = x.squeeze()
+        # x = x.unsqueeze(axis=0)
+        # x = x.unsqueeze(axis=0)
+        x=np.array([[x]])
         x = torch.from_numpy(x)
-
+        print(x.shape)
         x=F.relu(self.conv1(x))
         x=F.relu(self.conv2(x))
         x=F.relu(self.conv3(x))
