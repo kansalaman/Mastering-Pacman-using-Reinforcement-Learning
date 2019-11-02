@@ -22,7 +22,9 @@ class DQN_model(nn.Module):
         x=F.relu(self.conv1(x))
         x=F.relu(self.conv2(x))
         x=F.relu(self.conv3(x))
+        print("Output of conv", x.shape)
         x=x.view(x.size(0),-1)
+        print("After flattening: ", x.shape)
         x=F.relu(self.fcc1(x))
         x=self.fcc2(x)
 
@@ -61,7 +63,7 @@ class DQN_Agent:
 
         minibatch=random.sample(self.memory,bs)
 
-        for memory_element in self.memory:
+        for memory_element in minibatch:
             state=memory_element[0]
             action=memory_element[1]
             reward=memory_element[2]
@@ -75,17 +77,17 @@ class DQN_Agent:
             else:
                 target=(reward+self.discount*np.max(self.target_model(next_state)))
 
-                current_target=self.base_model(state)
+            current_target=self.base_model(state)
 
-                new_target = np.copy(current_target)
-                new_target[0][action] = target
+            new_target = np.copy(current_target)
+            new_target[0][action] = target
 
 
-                loss = - costfn(current_target, new_target)
-                optimizer = torch.optim.Adam(self.base_model.parameters(), lr=0.001)
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
+            loss = - costfn(current_target, new_target)
+            optimizer = torch.optim.Adam(self.base_model.parameters(), lr=0.001)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
         if self.epsilon > self.min_epsilon:
             self.epsilon = self.epsilon * self.epsilon_decay_rate
@@ -99,7 +101,7 @@ class DQN_Agent:
         # Here path should be a pth dict
 
     def save_model(self, path):
-        torch.save(self.base_model.state_dict(), )
+        torch.save(self.base_model.state_dict(), path)
 
 
 

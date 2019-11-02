@@ -1,6 +1,5 @@
 import gym
-import torch
-from DQN_torch import DQN_Agent
+from DQN_torch import DQN_Agent, DQN_model
 from util import *
 from collections import deque
 
@@ -24,7 +23,7 @@ done = False
 
 # Train loop
 for i in range(num_epochs):
-
+    print("epoch: " + str(i))
     total_reward = 0
     score = 0
     state = preprocess(env.reset())
