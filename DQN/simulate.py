@@ -12,7 +12,7 @@ pacmanAgent = DQN_Agent(num_states, num_actions)
 # Parameters
 
 num_epochs = 500
-bs = 90
+bs = 1
 avg_reward = 0
 fps_factor = 4
 wait_time = 90
@@ -27,11 +27,14 @@ for i in range(num_epochs):
     total_reward = 0
     score = 0
     state = preprocess(env.reset())
+    print("Called preprocess")
     frame_queue = deque(maxlen=fps_factor)
     frame_queue.append(state)
 
     for t in range(wait_time):
         env.step(0)
+
+    print("Waiting done")
 
     for t in range(20000):
         env.render()
@@ -40,16 +43,21 @@ for i in range(num_epochs):
     if T % pacmanAgent.update_rate == 0:
         pacmanAgent.update_target_from_base()
 
+    print("Updating target model done")
+
     state = mergeFrames(frame_queue, fps_factor)
 
     action = pacmanAgent.act(state)
     nextState, reward, done, _ = env.step(action)
+    print("Action found")
 
     nextState = preprocess(nextState)
     frame_queue.append(nextState)
     nextState = mergeFrames(frame_queue, fps_factor)
 
     pacmanAgent.remember(state, action, reward, nextState, done)
+
+    print("remember called")
 
     state = nextState
     score = score + reward

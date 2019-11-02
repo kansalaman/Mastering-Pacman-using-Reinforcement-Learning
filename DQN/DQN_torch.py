@@ -12,13 +12,17 @@ costfn = nn.MSELoss()
 class DQN_model(nn.Module):
     def __init__(self,num_actions):
         super(DQN_model, self).__init__()
-        self.conv1=nn.Conv2d(3,32,8,stride=4)
+        self.conv1=nn.Conv2d(1,32,8,stride=4)
         self.conv2=nn.Conv2d(32,64,4,stride=2)
         self.conv3=nn.Conv2d(64,64,3,stride=1)
         self.fcc1=nn.Linear(85,512)
         self.fcc2=nn.Linear(512,num_actions)
 
     def forward(self,x):
+        x = x.T
+
+        x = torch.from_numpy(x)
+
         x=F.relu(self.conv1(x))
         x=F.relu(self.conv2(x))
         x=F.relu(self.conv3(x))
@@ -70,9 +74,9 @@ class DQN_Agent:
             next_state=memory_element[3]
             done=memory_element[4]
 
-            assert(done == (reward == 0))
+            # assert(done == (reward == 0))
 
-            if reward==0:
+            if done:
                 target=reward
             else:
                 target=(reward+self.discount*np.max(self.target_model(next_state)))
