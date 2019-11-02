@@ -6,9 +6,12 @@ from torch import nn
 import torch.nn.functional as F
 from collections import deque
 
+costfn = nn.MSELoss()
+
 
 class DQN_model(nn.Module):
     def __init__(self,num_actions):
+        super(DQN_model, self).__init__()
         self.conv1=nn.Conv2d(3,32,8,stride=4)
         self.conv2=nn.Conv2d(32,64,4,stride=2)
         self.conv3=nn.Conv2d(64,64,3,stride=1)
@@ -37,8 +40,8 @@ class DQN_Agent:
         self.epsilon_decay_rate=0.995
         self.update_rate=1000
 
-        self.base_model=DQN_model()
-        self.target_model=DQN_model()
+        self.base_model=DQN_model(num_actions)
+        self.target_model=DQN_model(num_actions)
         self.target_model.load_state_dict(self.base_model.state_dict())
         self.memory=deque(maxlen=4500)
 
@@ -65,15 +68,38 @@ class DQN_Agent:
             next_state=memory_element[3]
             done=memory_element[4]
 
-        assert(done==(reward==0))
-        if reward==0:
-            target=reward
-        else:
-            target=(reward+self.discount*np.max(self.target_model(next_state)))
-        
-        current_target=self.base_model(state)
-        
+            assert(done == (reward == 0))
 
+            if reward==0:
+                target=reward
+            else:
+                target=(reward+self.discount*np.max(self.target_model(next_state)))
+
+                current_target=self.base_model(state)
+
+                new_target = np.copy(current_target)
+                new_target[0][action] = target
+
+
+                loss = - costfn(current_target, new_target)
+                optimizer = torch.optim.Adam(self.base_model.parameters(), lr=0.001)
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+
+        if self.epsilon > self.min_epsilon:
+            self.epsilon = self.epsilon * self.epsilon_decay_rate
+
+
+    def update_target_from_base(self):
+        self.target_model.load_state_dict(self.base_model.state_dict())
+
+    def load_model(self, path):
+        self.base_model.load_state_dict(path)
+        # Here path should be a pth dict
+
+    def save_model(self, path):
+        torch.save(self.base_model.state_dict(), )
 
 
 
