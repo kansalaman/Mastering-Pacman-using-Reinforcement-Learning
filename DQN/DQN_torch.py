@@ -56,8 +56,8 @@ class DQN_Agent:
 
     def act(self,state):
 
-        if np.random.rand() <= self.epsilon:
-            return random.choice(range(self.num_actions))
+        # if np.random.rand() <= self.epsilon:
+        #     return random.choice(range(self.num_actions))
         
         act_probs=self.base_model(state)
 
@@ -103,7 +103,7 @@ class DQN_Agent:
         self.target_model.load_state_dict(self.base_model.state_dict())
 
     def load_model(self, path):
-        self.base_model.load_state_dict(path)
+        self.base_model.load_state_dict(torch.load(path, map_location='cpu'))
         # Here path should be a pth dict
 
     def save_model(self, path):
