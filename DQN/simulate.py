@@ -36,7 +36,7 @@ for i in range(num_epochs):
 
     print("Waiting done")
 
-    for t in range(200):
+    for t in range(20000):
         env.render()
         T += 1
     # T+=200
@@ -44,13 +44,13 @@ for i in range(num_epochs):
         if T % pacmanAgent.update_rate == 0:
             pacmanAgent.update_target_from_base()
 
-        print("Updating target model done")
+        # print("Updating target model done")
 
         state = mergeFrames(frame_queue, fps_factor)
 
         action = pacmanAgent.act(state)
         nextState, reward, done, _ = env.step(action)
-        print("Action found")
+        # print("Action found")
 
         nextState = preprocess(nextState)
         frame_queue.append(nextState)
@@ -58,7 +58,7 @@ for i in range(num_epochs):
 
         pacmanAgent.remember(state, action, reward, nextState, done)
 
-        print("remember called")
+        # print("remember called")
 
         state = nextState
         score = score + reward
@@ -75,7 +75,7 @@ for i in range(num_epochs):
             break
 
         if len(pacmanAgent.memory) > bs:
-            print('entered here')
+            # print('entered here')
             pacmanAgent.replay(bs)
 
 

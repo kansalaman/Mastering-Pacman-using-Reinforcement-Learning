@@ -30,8 +30,6 @@ class DQN_model(nn.Module):
         x=x.view(x.size(0),-1)
         x=F.relu(self.fcc1(x))
         x=self.fcc2(x)
-        print(x.shape)
-        print(self.parameters())
         
 
         return x
