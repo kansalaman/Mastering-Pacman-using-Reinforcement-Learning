@@ -12,7 +12,7 @@ pacmanAgent = DQN_Agent(num_states, num_actions)
 # Parameters
 
 num_epochs = 500
-bs = 1
+bs = 8
 avg_reward = 0
 fps_factor = 4
 wait_time = 90
@@ -39,42 +39,44 @@ for i in range(num_epochs):
     for t in range(200):
         env.render()
         T += 1
+    # T+=200
 
-    if T % pacmanAgent.update_rate == 0:
-        pacmanAgent.update_target_from_base()
+        if T % pacmanAgent.update_rate == 0:
+            pacmanAgent.update_target_from_base()
 
-    print("Updating target model done")
+        print("Updating target model done")
 
-    state = mergeFrames(frame_queue, fps_factor)
+        state = mergeFrames(frame_queue, fps_factor)
 
-    action = pacmanAgent.act(state)
-    nextState, reward, done, _ = env.step(action)
-    print("Action found")
+        action = pacmanAgent.act(state)
+        nextState, reward, done, _ = env.step(action)
+        print("Action found")
 
-    nextState = preprocess(nextState)
-    frame_queue.append(nextState)
-    nextState = mergeFrames(frame_queue, fps_factor)
+        nextState = preprocess(nextState)
+        frame_queue.append(nextState)
+        nextState = mergeFrames(frame_queue, fps_factor)
 
-    pacmanAgent.remember(state, action, reward, nextState, done)
+        pacmanAgent.remember(state, action, reward, nextState, done)
 
-    print("remember called")
+        print("remember called")
 
-    state = nextState
-    score = score + reward
-    reward = reward - 1
-    total_reward += reward
+        state = nextState
+        score = score + reward
+        reward = reward - 1
+        total_reward += reward
 
-    if done:
-        avg_reward = avg_reward + score
+        if done:
+            avg_reward = avg_reward + score
 
-        print("epoch: " + str(i))
-        print("game_score: " + str(score))
-        print("reward: " + str(total_reward))
+            print("epoch: " + str(i))
+            print("game_score: " + str(score))
+            print("reward: " + str(total_reward))
 
-        break
+            break
 
-    if len(pacmanAgent.memory) > bs:
-        pacmanAgent.replay(bs)
+        if len(pacmanAgent.memory) > bs:
+            print('entered here')
+            pacmanAgent.replay(bs)
 
 
 pacmanAgent.save_model("models/dqn_pacman.pth")

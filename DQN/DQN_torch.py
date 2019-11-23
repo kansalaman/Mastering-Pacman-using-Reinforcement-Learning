@@ -19,22 +19,20 @@ class DQN_model(nn.Module):
         self.fcc2=nn.Linear(512,num_actions)
 
     def forward(self,x):
-        print(x.shape)
         x = x.squeeze()
         # x = x.unsqueeze(axis=0)
         # x = x.unsqueeze(axis=0)
         x=np.array([[x]])
         x = torch.from_numpy(x)
-        print(x.shape)
         x=F.relu(self.conv1(x))
         x=F.relu(self.conv2(x))
         x=F.relu(self.conv3(x))
-        print("Output of conv", x.shape)
         x=x.view(x.size(0),-1)
-        print("After flattening: ", x.shape)
         x=F.relu(self.fcc1(x))
         x=self.fcc2(x)
         print(x.shape)
+        print(self.parameters())
+        
 
         return x
         
@@ -84,7 +82,6 @@ class DQN_Agent:
                 target=reward
             else:
                 model_out = self.target_model(next_state)
-                print(type(model_out))
                 target=(reward+self.discount*torch.max(model_out))
 
             current_target=self.base_model(state)
@@ -94,10 +91,11 @@ class DQN_Agent:
 
 
             loss = - costfn(current_target, new_target)
-            optimizer = torch.optim.Adam(self.base_model.parameters(), lr=0.001)
-            optimizer.zero_grad()
+            optimizer = torch.optim.Adam(self.base_model.parameters(), lr=0.01)
+            # optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            # exit()
 
         if self.epsilon > self.min_epsilon:
             self.epsilon = self.epsilon * self.epsilon_decay_rate
