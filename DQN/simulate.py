@@ -36,7 +36,7 @@ for i in range(num_epochs):
 
     print("Waiting done")
 
-    for t in range(2):
+    for t in range(200):
         env.render()
         T += 1
 

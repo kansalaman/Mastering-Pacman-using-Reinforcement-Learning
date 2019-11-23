@@ -15,7 +15,7 @@ class DQN_model(nn.Module):
         self.conv1=nn.Conv2d(1,32,8,stride=4)
         self.conv2=nn.Conv2d(32,64,4,stride=2)
         self.conv3=nn.Conv2d(64,64,3,stride=1)
-        self.fcc1=nn.Linear(85,512)
+        self.fcc1=nn.Linear(2688,512)
         self.fcc2=nn.Linear(512,num_actions)
 
     def forward(self,x):
@@ -34,6 +34,7 @@ class DQN_model(nn.Module):
         print("After flattening: ", x.shape)
         x=F.relu(self.fcc1(x))
         x=self.fcc2(x)
+        print(x.shape)
 
         return x
         
@@ -49,8 +50,8 @@ class DQN_Agent:
         self.epsilon_decay_rate=0.995
         self.update_rate=1000
 
-        self.base_model=DQN_model(num_actions)
-        self.target_model=DQN_model(num_actions)
+        self.base_model=DQN_model(num_actions).double()
+        self.target_model=DQN_model(num_actions).double()
         self.target_model.load_state_dict(self.base_model.state_dict())
         self.memory=deque(maxlen=4500)
 
@@ -64,7 +65,7 @@ class DQN_Agent:
         
         act_probs=self.base_model(state)
 
-        return np.argmax(act_probs.squeeze())
+        return torch.argmax(act_probs.squeeze())
 
     def replay(self,bs):
 
@@ -82,11 +83,13 @@ class DQN_Agent:
             if done:
                 target=reward
             else:
-                target=(reward+self.discount*np.max(self.target_model(next_state)))
+                model_out = self.target_model(next_state)
+                print(type(model_out))
+                target=(reward+self.discount*torch.max(model_out))
 
             current_target=self.base_model(state)
 
-            new_target = np.copy(current_target)
+            new_target = current_target.clone()
             new_target[0][action] = target
 
 
