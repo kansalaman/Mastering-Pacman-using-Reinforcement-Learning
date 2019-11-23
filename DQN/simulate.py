@@ -8,6 +8,7 @@ num_states = (88, 80, 1)
 num_actions = env.action_space.n
 
 pacmanAgent = DQN_Agent(num_states, num_actions)
+pacmanAgent.load_model("dqn_pacman.pth")
 
 # Parameters
 
@@ -37,7 +38,7 @@ for i in range(num_epochs):
     print("Waiting done")
 
     for t in range(20000):
-        env.render()
+        # env.render()
         T += 1
     # T+=200
 
@@ -78,5 +79,5 @@ for i in range(num_epochs):
             # print('entered here')
             pacmanAgent.replay(bs)
 
+    pacmanAgent.save_model("dqn_pacman.pth")
 
-pacmanAgent.save_model("models/dqn_pacman.pth")

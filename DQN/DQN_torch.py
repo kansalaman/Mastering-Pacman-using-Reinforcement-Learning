@@ -103,7 +103,7 @@ class DQN_Agent:
         self.target_model.load_state_dict(self.base_model.state_dict())
 
     def load_model(self, path):
-        self.base_model.load_state_dict(path)
+        self.base_model.load_state_dict(torch.load(path))
         # Here path should be a pth dict
 
     def save_model(self, path):
